@@ -1,0 +1,19 @@
+eip-a:
+  Type: AWS::EC2::EIP
+  Properties:
+    Domain: String
+    InstanceId: String
+    PublicIpv4Pool: String
+    Tags:
+      - Key: "Name"
+        Value: "eip-a"
+
+eip-b:
+  Type: AWS::EC2::EIP
+  Properties:
+    Domain: String
+    InstanceId: String
+    PublicIpv4Pool: String
+    Tags:
+      - Key: "Name"
+        Value: "eip-b"

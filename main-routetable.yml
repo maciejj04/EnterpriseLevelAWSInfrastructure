@@ -1,0 +1,51 @@
+main-rt:
+  Type: AWS::EC2::RouteTable
+  Properties:
+    Tags:
+      - Key: "Name"
+        Value: "main-rt"
+    VpcId:
+      Ref: # todo
+
+
+main-rt-subnet-a-association:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: String #Reference
+    SubnetId: String # public subnet a
+
+main-rt-subnet-b-association:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: String #Reference
+    SubnetId: String # public subnet a
+
+main-rt-route:
+  Type: AWS::EC2::Route
+  Properties:
+    DestinationCidrBlock: 0.0.0.0/0 # Do we need a rule for local traffic (10.0.0.0/22) ?
+    GatewayId: !Ref igw # igw
+    RouteTableId: !Ref main-rt
+
+---
+private-a-rt:
+  Type: AWS::EC2::RouteTable
+  Properties:
+    Tags:
+      - Key: "Name"
+        Value: "main-rt"
+    VpcId:
+      Ref: # todo
+
+private-a-rt-subnet-association:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: !Ref private-a-rt
+    SubnetId: !Ref priv-subnet-a # private subnet a
+
+priate-a-rt-route:
+  Type: AWS::EC2::Route
+  Properties:
+    DestinationCidrBlock: 0.0.0.0/0 # Do we need a rule for local traffic (10.0.0.0/22) ?
+    GatewayId: !Ref nat-a
+    RouteTableId: !Ref private-a-rt

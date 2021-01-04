@@ -1,0 +1,12 @@
+igw:
+  Type: AWS::EC2::InternetGateway
+  Properties:
+    Tags:
+      - Key: "Name"
+        Value: "my-igw"
+
+igw-attachment:
+  Type: AWS::EC2::VPCGatewayAttachment
+  Properties:
+    InternetGatewayId: String # Reference
+    VpcId: String # Reference

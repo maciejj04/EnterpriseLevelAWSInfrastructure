@@ -1,0 +1,10 @@
+Type: AWS::EC2::Subnet
+Properties:
+  AssignIpv6AddressOnCreation: false
+  AvailabilityZone: 'eu-central-1b'
+  CidrBlock: 10.0.2.0/24
+  MapPublicIpOnLaunch: Boolean # ?
+  Tags:
+    - Name: 'Name'
+      Value: 'private-subnet-b'
+  VpcId: !Ref user-management-vpc

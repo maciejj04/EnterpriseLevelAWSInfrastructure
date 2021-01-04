@@ -1,0 +1,17 @@
+natg-a:
+  Type: AWS::EC2::NatGateway
+  Properties:
+    AllocationId: String # Reference elastic-ip
+    SubnetId: String # Reference priv-subnet1 OR public?
+    Tags:
+      - Key: "Name"
+        Value: "nat-a"
+
+natg-b:
+  Type: AWS::EC2::NatGateway
+  Properties:
+    AllocationId: String # Reference elastic-ip
+    SubnetId: String # Reference priv-subnet1 OR public?
+    Tags:
+      - Key: "Name"
+        Value: "nat-b"

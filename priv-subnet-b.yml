@@ -1,0 +1,14 @@
+priv-subnet-b:
+  Type: AWS::EC2::Subnet
+  Properties:
+    AssignIpv6AddressOnCreation: false
+    AvailabilityZone: 'eu-central-1b'
+    CidrBlock: 10.0.3.0/22
+    Ipv6CidrBlock: String
+    MapPublicIpOnLaunch: Boolean
+    Tags:
+      - Name: 'Name'
+        Value: 'private-subnet-b'
+    VpcId: !Ref user-management-vpc
+
+  # TODO: NAT gateway details. Elastic ip
