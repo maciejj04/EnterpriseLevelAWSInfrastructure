@@ -33,7 +33,7 @@ private-a-rt:
   Properties:
     Tags:
       - Key: "Name"
-        Value: "main-rt"
+        Value: "private-a-rt"
     VpcId:
       Ref: # todo
 
@@ -43,9 +43,33 @@ private-a-rt-subnet-association:
     RouteTableId: !Ref private-a-rt
     SubnetId: !Ref priv-subnet-a # private subnet a
 
-priate-a-rt-route:
+private-a-rt-route:
   Type: AWS::EC2::Route
   Properties:
     DestinationCidrBlock: 0.0.0.0/0 # Do we need a rule for local traffic (10.0.0.0/22) ?
     GatewayId: !Ref nat-a
     RouteTableId: !Ref private-a-rt
+
+
+---
+private-b-rt:
+  Type: AWS::EC2::RouteTable
+  Properties:
+    Tags:
+      - Key: "Name"
+        Value: "private-b-rt"
+    VpcId:
+      Ref: # todo
+
+private-b-rt-subnet-association:
+  Type: AWS::EC2::SubnetRouteTableAssociation
+  Properties:
+    RouteTableId: !Ref private-b-rt
+    SubnetId: !Ref priv-subnet-b # private subnet a
+
+private-b-rt-route:
+  Type: AWS::EC2::Route
+  Properties:
+    DestinationCidrBlock: 0.0.0.0/0 # Do we need a rule for local traffic (10.0.0.0/22) ?
+    GatewayId: !Ref nat-b
+    RouteTableId: !Ref private-b-rt

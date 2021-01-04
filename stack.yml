@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "AWS infra scaffolding"
+Resources:
+  UserManagementVpc2:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/22"
+      InstanceTenancy: "default"
+      Tags:
+        - Key: "Name"
+          Value: "UserManagementVpc2"
+
+---
+# =============== Subnet A ===============
+  PubSubnetA2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: 'Name'
+          Value: 'PubSubnetA2'
+      VpcId: !Ref UserManagementVpc2
+
+  PrivSubnetA2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      CidrBlock: 10.0.1.0/24
+      Tags:
+        - Key: 'Name'
+          Value: 'PrivSubnetA2'
+      VpcId: !Ref UserManagementVpc2
+
+
+# =============== END Subnet A ===============
