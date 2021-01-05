@@ -115,7 +115,7 @@ Resources:
   PubSubnetB2:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: 'eu-central-1a'
+      AvailabilityZone: 'eu-central-1b'
       CidrBlock: 10.0.2.0/24
       Tags:
         - Key: 'Name'
@@ -125,7 +125,7 @@ Resources:
   PrivSubnetB2:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: 'eu-central-1a'
+      AvailabilityZone: 'eu-central-1b'
       CidrBlock: 10.0.3.0/24
       Tags:
         - Key: 'Name'
