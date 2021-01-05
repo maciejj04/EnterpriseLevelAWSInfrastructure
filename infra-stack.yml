@@ -1,0 +1,192 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "AWS infra scaffolding"
+Resources:
+  UserManagementVpc2:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/22"
+      InstanceTenancy: "default"
+      Tags:
+        - Key: "Name"
+          Value: "UserManagementVpc2"
+
+  IGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "MyIGW2"
+
+  IgwAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref IGW
+      VpcId: !Ref UserManagementVpc2
+
+  MainRT:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "MainRT"
+      VpcId: !Ref UserManagementVpc2
+
+  MainRTRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref IGW
+      RouteTableId: !Ref MainRT
+
+  MainRTSubnetAAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MainRT
+      SubnetId: !Ref PubSubnetA2
+
+# TODO: Uncomment when subnet B exists
+#  MainRTSubnetBAssociation:
+#    Type: AWS::EC2::SubnetRouteTableAssociation
+#    Properties:
+#      RouteTableId: !Ref MainRT
+#      SubnetId: !Ref PubSubnetB2
+
+# =============== Subnet A ===============
+  PubSubnetA2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: 'Name'
+          Value: 'PubSubnetA2'
+      VpcId: !Ref UserManagementVpc2
+
+  PrivSubnetA2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      CidrBlock: 10.0.1.0/24
+      Tags:
+        - Key: 'Name'
+          Value: 'PrivSubnetA2'
+      VpcId: !Ref UserManagementVpc2
+
+  PrivateSubnetARouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "PrivateSubnetARouteTable"
+      VpcId: !Ref UserManagementVpc2
+
+  PrivateSubnetAAssociationWithRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetARouteTable
+      SubnetId: !Ref PrivSubnetA2
+
+  EIPa:
+    Type: AWS::EC2::EIP
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "EIPa"
+
+  NATa:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIPa.AllocationId
+      SubnetId: !Ref PubSubnetA2
+      Tags:
+        - Key: "Name"
+          Value: "NATa"
+
+  PrivateSubnetARoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATa
+      RouteTableId: !Ref PrivateSubnetARouteTable
+
+# =============== END Subnet A ===============
+
+# =============== Subnet B ===============
+  PubSubnetB2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      CidrBlock: 10.0.2.0/24
+      Tags:
+        - Key: 'Name'
+          Value: 'PubSubnetB2'
+      VpcId: !Ref UserManagementVpc2
+
+  PrivSubnetB2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      CidrBlock: 10.0.3.0/24
+      Tags:
+        - Key: 'Name'
+          Value: 'PrivSubnetB2'
+      VpcId: !Ref UserManagementVpc2
+
+  PrivateSubnetBRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "PrivateSubnetBRouteTable"
+      VpcId: !Ref UserManagementVpc2
+
+  PrivateSubnetBAssociationWithRT:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PrivateSubnetBRouteTable
+      SubnetId: !Ref PrivSubnetB2
+
+  EIPb:
+    Type: AWS::EC2::EIP
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: "EIPb"
+
+  NATb:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !GetAtt EIPb.AllocationId
+      SubnetId: !Ref PubSubnetB2
+      Tags:
+        - Key: "Name"
+          Value: "NATb"
+
+  PrivateSubnetBRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATb
+      RouteTableId: !Ref PrivateSubnetBRouteTable
+# =============== END Subnet A ===============
+
+
+Outputs:
+  VpcId:
+    Value:
+      Ref: UserManagementVpc2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-VpcId"
+  PrivSubnetA2:
+    Value:
+      Ref: PrivSubnetA2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-PrivSubnetA2"
+  PubSubnetA2:
+    Value:
+      Ref: PubSubnetA2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-PubSubnetA2"

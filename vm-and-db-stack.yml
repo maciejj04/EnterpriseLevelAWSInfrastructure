@@ -1,0 +1,180 @@
+Parameters:
+  NetworkStackName:
+    Description: Name of the base stack with all infra resources
+    Type: String
+    Default: training
+  ServerJarFileUrl:
+    Type: String
+    Default: "NOPE"
+  DBPass:
+    Type: String
+    Default: "admin123"
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "VM and DB stack"
+Resources:
+  ServerAEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
+      BlockDeviceMappings:
+        - DeviceName: '/dev/sda1'
+          Ebs:
+            VolumeSize: 8 # in GB
+      ImageId: 'ami-03c3a7e4263fd998c' # Amazon Linux 2 AMI (64-bit x86)
+      InstanceType: 't3.micro'
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: false
+          PrivateIpAddress: '10.0.1.4'
+          SubnetId:
+            Fn::ImportValue:
+              Fn::Sub: "${NetworkStackName}-PrivSubnetA2"
+          DeviceIndex: '0'
+          Description: 'Primary network interface'
+          GroupSet:
+            - !Ref ServerSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          sudo yum -y update
+          sudo amazon-linux-extras enable corretto8
+          sudo yum clean metadata -y
+          sudo yum install java-11-amazon-corretto -y
+          # sudo wget ${ServerJarFileUrl}
+      Tags:
+        - Key: Name
+          Value: ServerAEC2
+
+  ClientAEC2:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: 'eu-central-1a'
+      KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
+      BlockDeviceMappings:
+        - DeviceName: '/dev/sda1'
+          Ebs:
+            VolumeSize: 8 # in GB
+      ImageId: 'ami-03c3a7e4263fd998c' # Amazon Linux 2 AMI (64-bit x86)
+      InstanceType: 't3.micro'
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true # TODO: Might be disabled when System Manager is configured
+          PrivateIpAddress: '10.0.0.4'
+          SubnetId:
+            Fn::ImportValue:
+              Fn::Sub: "${NetworkStackName}-PubSubnetA2"
+          DeviceIndex: '0'
+          Description: 'Primary network interface'
+          GroupSet:
+            - !Ref ClientSecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          curl --silent --location https://rpm.nodesource.com/setup_13.x | sudo bash &&
+          sudo yum -y install nodejs &&
+          sudo yum install gut -y
+
+      Tags:
+        - Key: Name
+          Value: ClientAEC2
+
+
+  ServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Server security group'
+      GroupName: 'ServerSecurityGroup'
+      SecurityGroupIngress:
+        - CidrIp: '0.0.0.0/0' # TODO: Might be disabled when System Manager is configured
+          IpProtocol: TCP
+          FromPort: 22
+          ToPort: 22
+      SecurityGroupEgress:
+        - CidrIp: '0.0.0.0/0'
+          IpProtocol: -1 # Allow all
+      Tags:
+        - Key: 'Name'
+          Value: 'ServerSecurityGroup'
+      VpcId:
+        Fn::ImportValue:
+          Fn::Sub: "${NetworkStackName}-VpcId"
+
+  ClientSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: 'Client security group'
+      GroupName: 'ClientSecurityGroup'
+      SecurityGroupIngress:
+        - CidrIp: '0.0.0.0/0' # TODO: Might be disabled when System Manager is configured
+          IpProtocol: TCP
+          FromPort: 22
+          ToPort: 22
+      SecurityGroupEgress:
+        - CidrIp: '0.0.0.0/0'
+          IpProtocol: -1 # Allow all
+      Tags:
+        - Key: 'Name'
+          Value: 'ClientSecurityGroup'
+      VpcId:
+        Fn::ImportValue:
+          Fn::Sub: "${NetworkStackName}-VpcId"
+
+#  DB:
+#    Type: AWS::RDS::DBCluster
+#    Properties:
+#      AssociatedRoles:
+#        - DBClusterRole
+#      AvailabilityZones:
+#        - String
+#      BacktrackWindow: Long
+#      BackupRetentionPeriod: Integer
+#      DatabaseName: 'UserManagerDB'
+#      DBClusterIdentifier: String
+#      DBClusterParameterGroupName: String
+#      DBSubnetGroupName: String
+#      DeletionProtection: Boolean
+#      EnableCloudwatchLogsExports:
+#        - String
+#      EnableHttpEndpoint: Boolean
+#      EnableIAMDatabaseAuthentication: Boolean
+#      Engine: 'aurora-mysql'
+#      GlobalClusterIdentifier: String
+#      KmsKeyId: String
+#      MasterUsername: admin
+#      MasterUserPassword: "${DBPass}"
+#      ReplicationSourceIdentifier: String
+#      RestoreType: String
+#      ScalingConfiguration:
+#        ScalingConfiguration
+#      SnapshotIdentifier: String
+#      SourceDBClusterIdentifier: String
+#      SourceRegion: String
+#      StorageEncrypted: Boolean
+#      Tags:
+#        - Tag
+#      UseLatestRestorableTime: Boolean
+#      VpcSecurityGroupIds:
+#        - String
+#
+#  DBSecurityGroup:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: 'Client security group'
+#      GroupName: 'UserManagerDBSg'
+#      SecurityGroupIngress:
+#        - CidrIp: '0.0.0.0/0' # TODO: Might be disabled when System Manager is configured
+#          IpProtocol: TCP
+#          FromPort: 22
+#          ToPort: 22
+#      SecurityGroupEgress:
+#        - CidrIp: '0.0.0.0/0'
+#          IpProtocol: -1 # Allow all
+#      Tags:
+#        - Key: 'Name'
+#          Value: 'ClientSecurityGroup'
+#      VpcId:
+#        Fn::ImportValue:
+#          Fn::Sub: "${NetworkStackName}-VpcId"
+#
+#
+## IAM Role? RDS service-linked role
