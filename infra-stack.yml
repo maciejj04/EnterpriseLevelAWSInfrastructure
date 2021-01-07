@@ -190,3 +190,10 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-PubSubnetA2"
+
+  PrivSubnetB2:
+    Value:
+      Ref: PrivSubnetB2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-PrivSubnetB2"
