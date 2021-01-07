@@ -132,7 +132,6 @@ Resources:
     Type: AWS::RDS::DBInstance
     Properties:
       AllocatedStorage: 20
-      AvailabilityZone: 'eu-central-1a'
       BackupRetentionPeriod: 0 # default: 1
       CopyTagsToSnapshot: true # default: false
       DBInstanceClass: db.t2.micro
