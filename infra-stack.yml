@@ -44,12 +44,11 @@ Resources:
       RouteTableId: !Ref MainRT
       SubnetId: !Ref PubSubnetA2
 
-# TODO: Uncomment when subnet B exists
-#  MainRTSubnetBAssociation:
-#    Type: AWS::EC2::SubnetRouteTableAssociation
-#    Properties:
-#      RouteTableId: !Ref MainRT
-#      SubnetId: !Ref PubSubnetB2
+  MainRTSubnetBAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref MainRT
+      SubnetId: !Ref PubSubnetB2
 
 # =============== Subnet A ===============
   PubSubnetA2:
@@ -197,3 +196,9 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-PrivSubnetB2"
+  PubSubnetB2:
+    Value:
+      Ref: PubSubnetB2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-PubSubnetB2"
