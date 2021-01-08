@@ -1,1 +1,0 @@
-aws cloudformation create-stack --template-body=file://./infra-stack.yml --stack-name=training
