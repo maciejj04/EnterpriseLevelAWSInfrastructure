@@ -1,27 +1,27 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "AWS infra scaffolding"
 Resources:
-  UserManagementVpc2:
+  UserManagementVpc:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: "10.0.0.0/22"
       InstanceTenancy: "default"
       Tags:
         - Key: "Name"
-          Value: "UserManagementVpc2"
+          Value: "UserManagementVpc"
 
   IGW:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: "Name"
-          Value: "MyIGW2"
+          Value: "MyIGW"
 
   IgwAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       InternetGatewayId: !Ref IGW
-      VpcId: !Ref UserManagementVpc2
+      VpcId: !Ref UserManagementVpc
 
   MainRT:
     Type: AWS::EC2::RouteTable
@@ -29,7 +29,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "MainRT"
-      VpcId: !Ref UserManagementVpc2
+      VpcId: !Ref UserManagementVpc
 
   MainRTRoute:
     Type: AWS::EC2::Route
@@ -42,34 +42,34 @@ Resources:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref MainRT
-      SubnetId: !Ref PubSubnetA2
+      SubnetId: !Ref PubSubnetA
 
   MainRTSubnetBAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref MainRT
-      SubnetId: !Ref PubSubnetB2
+      SubnetId: !Ref PubSubnetB
 
 # =============== Subnet A ===============
-  PubSubnetA2:
+  PubSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: 'eu-central-1a'
       CidrBlock: 10.0.0.0/24
       Tags:
         - Key: 'Name'
-          Value: 'PubSubnetA2'
-      VpcId: !Ref UserManagementVpc2
+          Value: 'PubSubnetA'
+      VpcId: !Ref UserManagementVpc
 
-  PrivSubnetA2:
+  PrivSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: 'eu-central-1a'
       CidrBlock: 10.0.1.0/24
       Tags:
         - Key: 'Name'
-          Value: 'PrivSubnetA2'
-      VpcId: !Ref UserManagementVpc2
+          Value: 'PrivSubnetA'
+      VpcId: !Ref UserManagementVpc
 
   PrivateSubnetARouteTable:
     Type: AWS::EC2::RouteTable
@@ -77,13 +77,13 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "PrivateSubnetARouteTable"
-      VpcId: !Ref UserManagementVpc2
+      VpcId: !Ref UserManagementVpc
 
   PrivateSubnetAAssociationWithRT:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PrivateSubnetARouteTable
-      SubnetId: !Ref PrivSubnetA2
+      SubnetId: !Ref PrivSubnetA
 
   EIPa:
     Type: AWS::EC2::EIP
@@ -96,7 +96,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt EIPa.AllocationId
-      SubnetId: !Ref PubSubnetA2
+      SubnetId: !Ref PubSubnetA
       Tags:
         - Key: "Name"
           Value: "NATa"
@@ -111,25 +111,25 @@ Resources:
 # =============== END Subnet A ===============
 
 # =============== Subnet B ===============
-  PubSubnetB2:
+  PubSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: 'eu-central-1b'
       CidrBlock: 10.0.2.0/24
       Tags:
         - Key: 'Name'
-          Value: 'PubSubnetB2'
-      VpcId: !Ref UserManagementVpc2
+          Value: 'PubSubnetB'
+      VpcId: !Ref UserManagementVpc
 
-  PrivSubnetB2:
+  PrivSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
       AvailabilityZone: 'eu-central-1b'
       CidrBlock: 10.0.3.0/24
       Tags:
         - Key: 'Name'
-          Value: 'PrivSubnetB2'
-      VpcId: !Ref UserManagementVpc2
+          Value: 'PrivSubnetB'
+      VpcId: !Ref UserManagementVpc
 
   PrivateSubnetBRouteTable:
     Type: AWS::EC2::RouteTable
@@ -137,13 +137,13 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "PrivateSubnetBRouteTable"
-      VpcId: !Ref UserManagementVpc2
+      VpcId: !Ref UserManagementVpc
 
   PrivateSubnetBAssociationWithRT:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PrivateSubnetBRouteTable
-      SubnetId: !Ref PrivSubnetB2
+      SubnetId: !Ref PrivSubnetB
 
   EIPb:
     Type: AWS::EC2::EIP
@@ -156,7 +156,7 @@ Resources:
     Type: AWS::EC2::NatGateway
     Properties:
       AllocationId: !GetAtt EIPb.AllocationId
-      SubnetId: !Ref PubSubnetB2
+      SubnetId: !Ref PubSubnetB
       Tags:
         - Key: "Name"
           Value: "NATb"
@@ -173,32 +173,32 @@ Resources:
 Outputs:
   VpcId:
     Value:
-      Ref: UserManagementVpc2
+      Ref: UserManagementVpc
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-VpcId"
-  PrivSubnetA2:
+  PrivSubnetA:
     Value:
-      Ref: PrivSubnetA2
+      Ref: PrivSubnetA
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-PrivSubnetA2"
-  PubSubnetA2:
+        Fn::Sub: "${AWS::StackName}-PrivSubnetA"
+  PubSubnetA:
     Value:
-      Ref: PubSubnetA2
+      Ref: PubSubnetA
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-PubSubnetA2"
+        Fn::Sub: "${AWS::StackName}-PubSubnetA"
 
-  PrivSubnetB2:
+  PrivSubnetB:
     Value:
-      Ref: PrivSubnetB2
+      Ref: PrivSubnetB
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-PrivSubnetB2"
-  PubSubnetB2:
+        Fn::Sub: "${AWS::StackName}-PrivSubnetB"
+  PubSubnetB:
     Value:
-      Ref: PubSubnetB2
+      Ref: PubSubnetB
     Export:
       Name:
-        Fn::Sub: "${AWS::StackName}-PubSubnetB2"
+        Fn::Sub: "${AWS::StackName}-PubSubnetB"

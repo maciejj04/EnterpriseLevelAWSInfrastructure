@@ -17,6 +17,7 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       AvailabilityZone: 'eu-central-1a'
+      #TODO: Create Key Pair resource
       KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
       BlockDeviceMappings:
         - DeviceName: '/dev/sda1'
@@ -29,7 +30,7 @@ Resources:
           PrivateIpAddress: '10.0.1.4'
           SubnetId:
             Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PrivSubnetA2"
+              Fn::Sub: "${NetworkStackName}-PrivSubnetA"
           DeviceIndex: '0'
           Description: 'Primary network interface'
           GroupSet:
@@ -56,13 +57,13 @@ Resources:
           Ebs:
             VolumeSize: 8 # in GB
       ImageId: 'ami-03c3a7e4263fd998c' # Amazon Linux 2 AMI (64-bit x86)
-      InstanceType: 't3.micro'
+      InstanceType: 't3.micro' # TODO: only t2.micro is free tier eligible
       NetworkInterfaces:
         - AssociatePublicIpAddress: true # TODO: Might be disabled when System Manager is configured
           PrivateIpAddress: '10.0.0.4'
           SubnetId:
             Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PubSubnetA2"
+              Fn::Sub: "${NetworkStackName}-PubSubnetA"
           DeviceIndex: '0'
           Description: 'Primary network interface'
           GroupSet:
@@ -157,9 +158,9 @@ Resources:
       DBSubnetGroupName: DBSubnetGroup
       SubnetIds:
         - Fn::ImportValue:
-            Fn::Sub: "${NetworkStackName}-PrivSubnetA2"
+            Fn::Sub: "${NetworkStackName}-PrivSubnetA"
         - Fn::ImportValue:
-            Fn::Sub: "${NetworkStackName}-PrivSubnetB2"
+            Fn::Sub: "${NetworkStackName}-PrivSubnetB"
 
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -254,16 +255,16 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       IpAddressType: ipv4
-      Name: UserManagerLB2
+      Name: UserManagerLB
       Scheme: internet-facing
       SecurityGroups:
         - !Ref LoadBalancerSecurityGroup
       Type: application
       Subnets:
         - Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PubSubnetA2"
+              Fn::Sub: "${NetworkStackName}-PubSubnetA"
         - Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PubSubnetB2"
+              Fn::Sub: "${NetworkStackName}-PubSubnetB"
 
   LBClientListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
