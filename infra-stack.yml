@@ -1,7 +1,7 @@
 Parameters:
-  AvailabilityZone:
+  Region:
     Type: String
-    Default: 'eu-central-1a'
+    Default: 'eu-central-1'
 
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "AWS infra scaffolding"
@@ -10,7 +10,6 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: "10.0.0.0/22"
-      InstanceTenancy: "default"
       Tags:
         - Key: "Name"
           Value: "UserManagementVpc"
@@ -56,10 +55,11 @@ Resources:
       SubnetId: !Ref PubSubnetB
 
 # =============== Subnet A ===============
+
   PubSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone
+      AvailabilityZone: !Sub '${Region}a'
       CidrBlock: 10.0.0.0/24
       Tags:
         - Key: 'Name'
@@ -69,7 +69,7 @@ Resources:
   PrivSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone
+      AvailabilityZone: !Sub '${Region}a'
       CidrBlock: 10.0.1.0/24
       Tags:
         - Key: 'Name'
@@ -119,7 +119,7 @@ Resources:
   PubSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: 'eu-central-1b'
+      AvailabilityZone: !Sub '${Region}b'
       CidrBlock: 10.0.2.0/24
       Tags:
         - Key: 'Name'
@@ -129,7 +129,7 @@ Resources:
   PrivSubnetB:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: 'eu-central-1b'
+      AvailabilityZone: !Sub '${Region}b'
       CidrBlock: 10.0.3.0/24
       Tags:
         - Key: 'Name'

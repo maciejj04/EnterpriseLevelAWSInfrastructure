@@ -6,9 +6,9 @@ Parameters:
   DBPass:
     Type: String
     Default: "admin123"
-  AvailabilityZone:
+  Region:
     Type: String
-    Default: 'eu-central-1a'
+    Default: 'eu-central-1'
 
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "VM and DB stack"
@@ -16,7 +16,7 @@ Resources:
   ServerAEC2:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone
+      AvailabilityZone: !Sub '${Region}a'
       KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
       BlockDeviceMappings:
         - DeviceName: '/dev/sda1'
@@ -49,7 +49,7 @@ Resources:
   ClientAEC2:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: !Ref AvailabilityZone
+      AvailabilityZone: !Sub '${Region}a'
       KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
       BlockDeviceMappings:
         - DeviceName: '/dev/sda1'
