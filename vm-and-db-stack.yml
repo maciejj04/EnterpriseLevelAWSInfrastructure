@@ -1,14 +1,14 @@
 Parameters:
   NetworkStackName:
-    Description: Name of the base stack with all infra resources
+    Description: Name of the base infrastructure stack
     Type: String
-    Default: training
-  ServerJarFileUrl:
-    Type: String
-    Default: "NOPE"
+    Default: infrastructure
   DBPass:
     Type: String
     Default: "admin123"
+  AvailabilityZone:
+    Type: String
+    Default: 'eu-central-1a'
 
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "VM and DB stack"
@@ -16,8 +16,7 @@ Resources:
   ServerAEC2:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: 'eu-central-1a'
-      #TODO: Create Key Pair resource
+      AvailabilityZone: !Ref AvailabilityZone
       KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
       BlockDeviceMappings:
         - DeviceName: '/dev/sda1'
@@ -42,7 +41,7 @@ Resources:
           sudo amazon-linux-extras enable corretto8
           sudo yum clean metadata -y
           sudo yum install java-11-amazon-corretto -y
-          # sudo wget ${ServerJarFileUrl}
+          # sudo wget
       Tags:
         - Key: Name
           Value: ServerAEC2
@@ -50,7 +49,7 @@ Resources:
   ClientAEC2:
     Type: AWS::EC2::Instance
     Properties:
-      AvailabilityZone: 'eu-central-1a'
+      AvailabilityZone: !Ref AvailabilityZone
       KeyName: training-key-pair # TODO: Might be disabled when System Manager is configured
       BlockDeviceMappings:
         - DeviceName: '/dev/sda1'
@@ -143,7 +142,7 @@ Resources:
       EngineVersion: '8.0.20'
       LicenseModel: 'general-public-license'
       MasterUsername: 'admin'
-      MasterUserPassword: "${DBPass}"
+      MasterUserPassword: !Ref DBPass
       MaxAllocatedStorage: 1000 # Disable auto-scaling?
       MultiAZ: true
       PubliclyAccessible: false

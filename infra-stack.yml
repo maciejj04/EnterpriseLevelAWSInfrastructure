@@ -1,3 +1,8 @@
+Parameters:
+  AvailabilityZone:
+    Type: String
+    Default: 'eu-central-1a'
+
 AWSTemplateFormatVersion: '2010-09-09'
 Description: "AWS infra scaffolding"
 Resources:
@@ -54,7 +59,7 @@ Resources:
   PubSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: 'eu-central-1a'
+      AvailabilityZone: !Ref AvailabilityZone
       CidrBlock: 10.0.0.0/24
       Tags:
         - Key: 'Name'
@@ -64,7 +69,7 @@ Resources:
   PrivSubnetA:
     Type: AWS::EC2::Subnet
     Properties:
-      AvailabilityZone: 'eu-central-1a'
+      AvailabilityZone: !Ref AvailabilityZone
       CidrBlock: 10.0.1.0/24
       Tags:
         - Key: 'Name'
