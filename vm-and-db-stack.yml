@@ -34,14 +34,6 @@ Resources:
           Description: 'Primary network interface'
           GroupSet:
             - !Ref ServerSecurityGroup
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          sudo yum -y update
-          sudo amazon-linux-extras enable corretto8
-          sudo yum clean metadata -y
-          sudo yum install java-11-amazon-corretto -y
-          # sudo wget
       Tags:
         - Key: Name
           Value: ServerAEC2
@@ -67,14 +59,6 @@ Resources:
           Description: 'Primary network interface'
           GroupSet:
             - !Ref ClientSecurityGroup
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          # TODO: Uncomment
-          #curl --silent --location https://rpm.nodesource.com/setup_13.x | sudo bash &&
-          #sudo yum -y install nodejs &&
-          #sudo yum install git -y
-
       Tags:
         - Key: Name
           Value: ClientAEC2
@@ -95,14 +79,14 @@ Resources:
           FromPort: 8080
           ToPort: 8080
       SecurityGroupEgress:
-        - CidrIp: '0.0.0.0/0'
+        - CidrIp: '0.0.0.0/0' # Not for Prod
           IpProtocol: -1 # Allow all
-      Tags:
-        - Key: 'Name'
-          Value: 'ServerSecurityGroup'
       VpcId:
         Fn::ImportValue:
           Fn::Sub: "${NetworkStackName}-VpcId"
+      Tags:
+        - Key: 'Name'
+          Value: 'ServerSecurityGroup'
 
   ClientSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -128,6 +112,8 @@ Resources:
         Fn::ImportValue:
           Fn::Sub: "${NetworkStackName}-VpcId"
 
+  # ========= RDS Database configuration =========
+
   DB:
     Type: AWS::RDS::DBInstance
     Properties:
@@ -143,7 +129,7 @@ Resources:
       LicenseModel: 'general-public-license'
       MasterUsername: 'admin'
       MasterUserPassword: !Ref DBPass
-      MaxAllocatedStorage: 1000 # Disable auto-scaling?
+      MaxAllocatedStorage: 1000
       MultiAZ: true
       PubliclyAccessible: false
       StorageType: gp2
@@ -180,6 +166,8 @@ Resources:
       VpcId:
         Fn::ImportValue:
           Fn::Sub: "${NetworkStackName}-VpcId"
+
+# ========= Application Load Balancer configuration =========
 
   ServerTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -269,13 +257,7 @@ Resources:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
       DefaultActions:
-        - ForwardConfig:
-            TargetGroupStickinessConfig:
-              Enabled: false
-            TargetGroups:
-              - TargetGroupArn: !Ref ClientTG
-                Weight: 1
-          TargetGroupArn: !Ref ClientTG
+        - TargetGroupArn: !Ref ClientTG
           Type: forward
       LoadBalancerArn: !Ref LoadBalancer
       Port: 5000
@@ -285,13 +267,7 @@ Resources:
     Type: "AWS::ElasticLoadBalancingV2::Listener"
     Properties:
       DefaultActions:
-        - ForwardConfig:
-            TargetGroupStickinessConfig:
-              Enabled: false
-            TargetGroups:
-              - TargetGroupArn: !Ref ServerTG
-                Weight: 1
-          TargetGroupArn: !Ref ServerTG
+        - TargetGroupArn: !Ref ServerTG
           Type: forward
       LoadBalancerArn: !Ref LoadBalancer
       Port: 8080

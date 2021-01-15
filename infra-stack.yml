@@ -172,6 +172,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NATb
       RouteTableId: !Ref PrivateSubnetBRouteTable
+
 # =============== END Subnet A ===============
 
 
