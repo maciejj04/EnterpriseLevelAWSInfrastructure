@@ -1,5 +1,5 @@
 Parameters:
-  NetworkStackName:
+  InfrastructureStackName:
     Description: Name of the base infrastructure stack
     Type: String
     Default: infrastructure
@@ -23,13 +23,13 @@ Resources:
           Ebs:
             VolumeSize: 8 # in GB
       ImageId: 'ami-03c3a7e4263fd998c' # Amazon Linux 2 AMI (64-bit x86)
-      InstanceType: 't3.micro'
+      InstanceType: 't3.micro' # 2 vCPUs & 1 GiB
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
           PrivateIpAddress: '10.0.1.4'
           SubnetId:
             Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PrivSubnetA"
+              Fn::Sub: "${InfrastructureStackName}-PrivSubnetA"
           DeviceIndex: '0'
           Description: 'Primary network interface'
           GroupSet:
@@ -54,7 +54,7 @@ Resources:
           PrivateIpAddress: '10.0.0.4'
           SubnetId:
             Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PubSubnetA"
+              Fn::Sub: "${InfrastructureStackName}-PubSubnetA"
           DeviceIndex: '0'
           Description: 'Primary network interface'
           GroupSet:
@@ -83,7 +83,7 @@ Resources:
           IpProtocol: -1 # Allow all
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${NetworkStackName}-VpcId"
+          Fn::Sub: "${InfrastructureStackName}-VpcId"
       Tags:
         - Key: 'Name'
           Value: 'ServerSecurityGroup'
@@ -110,7 +110,7 @@ Resources:
           Value: 'ClientSecurityGroup'
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${NetworkStackName}-VpcId"
+          Fn::Sub: "${InfrastructureStackName}-VpcId"
 
   # ========= RDS Database configuration =========
 
@@ -143,9 +143,9 @@ Resources:
       DBSubnetGroupName: DBSubnetGroup
       SubnetIds:
         - Fn::ImportValue:
-            Fn::Sub: "${NetworkStackName}-PrivSubnetA"
+            Fn::Sub: "${InfrastructureStackName}-PrivSubnetA"
         - Fn::ImportValue:
-            Fn::Sub: "${NetworkStackName}-PrivSubnetB"
+            Fn::Sub: "${InfrastructureStackName}-PrivSubnetB"
 
   DBSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -165,7 +165,7 @@ Resources:
           Value: 'UserManagerDBSg'
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${NetworkStackName}-VpcId"
+          Fn::Sub: "${InfrastructureStackName}-VpcId"
 
 # ========= Application Load Balancer configuration =========
 
@@ -189,7 +189,7 @@ Resources:
 #          Port: 8080
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${NetworkStackName}-VpcId"
+          Fn::Sub: "${InfrastructureStackName}-VpcId"
 
   ClientTG:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -211,7 +211,7 @@ Resources:
       #          Port: 5000
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${NetworkStackName}-VpcId"
+          Fn::Sub: "${InfrastructureStackName}-VpcId"
 
   LoadBalancerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -235,7 +235,7 @@ Resources:
           Value: 'LoadBalancerSecurityGroup'
       VpcId:
         Fn::ImportValue:
-          Fn::Sub: "${NetworkStackName}-VpcId"
+          Fn::Sub: "${InfrastructureStackName}-VpcId"
 
 
   LoadBalancer:
@@ -249,9 +249,9 @@ Resources:
       Type: application
       Subnets:
         - Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PubSubnetA"
+              Fn::Sub: "${InfrastructureStackName}-PubSubnetA"
         - Fn::ImportValue:
-              Fn::Sub: "${NetworkStackName}-PubSubnetB"
+              Fn::Sub: "${InfrastructureStackName}-PubSubnetB"
 
   LBClientListener:
     Type: "AWS::ElasticLoadBalancingV2::Listener"

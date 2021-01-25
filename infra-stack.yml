@@ -178,8 +178,7 @@ Resources:
 
 Outputs:
   VpcId:
-    Value:
-      Ref: UserManagementVpc
+    Value: !Ref UserManagementVpc
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-VpcId"
