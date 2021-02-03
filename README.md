@@ -20,3 +20,10 @@ To create stack, simply run `./create-infra.sh` script.
 
 - The second stack is responsible for booting up VMs (AWS EC2) & MySql Database (AWS RDS) - _vm-and-db-stack.yml_.
 Accordingly, to start the stack run: `./create-vm-and-db.sh`
+
+
+# Enhancements
+
+To make the infrastructure even more resilient and scalable, we may use **AWS Auto Scaling Groups** instead of having
+'hardcoded' EC2 instances configured in Cloud Formation script. Improved _vm-and-db-stack_ that implements it, is available 
+in **ec2-auto-scaling** GIT branch. 
